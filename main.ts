@@ -5,12 +5,10 @@ import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 /** Run one program on its input bytes. Returns [output bytes, exit code].
- *  Trap precedence, checked in this order each step: step limit (10), pc out
- *  of bounds (9), bad opcode (5), truncated immediate (9), stack underflow
- *  (2), stack overflow (3), then the per-opcode traps (div-by-zero 4, bad
- *  memory address 6, call depth 7, empty RET 8, output limit 11). In-place
- *  ops (NEG, NOT, LOAD, PRINT, PUTC, JZ, JNZ) count as pops=1, push=0: they
- *  consume one stack slot and write their result back into it. */
+ *  Trap order each step: step limit 10, pc bounds 9, bad opcode 5, truncated
+ *  immediate 9, underflow 2, overflow 3, then per-opcode traps (div-zero 4,
+ *  bad address 6, call depth 7, empty RET 8, output limit 11). In-place ops
+ *  (NEG, NOT, LOAD, PRINT, PUTC, JZ, JNZ) count as pops=1, push=0. */
 function run(p: Uint8Array, inp: Uint8Array): [Uint8Array, number] {
   const D = new Int32Array(256); // data stack
   const C = new Int32Array(64); // call stack
